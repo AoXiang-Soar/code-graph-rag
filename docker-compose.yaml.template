@@ -1,0 +1,39 @@
+services:
+  memgraph:
+    image: memgraph/memgraph-mage
+    ports:
+      - "${MEMGRAPH_PORT:-7687}:7687"
+      - "${MEMGRAPH_HTTP_PORT:-7444}:7444"
+  lab:
+    image: memgraph/lab
+    ports:
+      - "${LAB_PORT:-3000}:3000"
+    environment:
+      QUICK_CONNECT_MG_HOST: memgraph
+  cgr:
+    image: cgr:${TAG:-dev}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    stdin_open: true
+    tty: true
+    depends_on:
+      - memgraph
+      - lab
+    environment:
+      #ORCHESTRATOR_PROVIDER: openai
+      ORCHESTRATOR_PROVIDER: ollama
+      ORCHESTRATOR_MODEL: deepseek-ai/DeepSeek-V3
+      ORCHESTRATOR_API_KEY: sk-your-key
+      #CYPHER_PROVIDER: openai
+      CYPHER_PROVIDER: ollama
+      CYPHER_MODEL: deepseek-ai/DeepSeek-V3
+      CYPHER_API_KEY: sk-your-key
+      MEMGRAPH_HOST: host.docker.internal
+      MEMGRAPH_PORT: 7687
+      MEMGRAPH_HTTP_PORT: 7444
+      LAB_PORT: 3000
+      MEMGRAPH_BATCH_SIZE: 1000
+      TARGET_REPO_PATH: .
+      #LOCAL_MODEL_ENDPOINT: http://localhost:11434/v1
+      LOCAL_MODEL_ENDPOINT: https://api.siliconflow.cn/v1
