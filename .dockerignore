@@ -21,4 +21,5 @@ wheels/
 .DS_Store
 .pypi_cache.json
 docker-compose.yaml
+docker-compose.yaml.templete
 LICENSE
