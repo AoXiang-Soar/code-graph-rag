@@ -75,7 +75,7 @@ class AppConfig(BaseSettings):
     CYPHER_THINKING_BUDGET: int | None = None
     CYPHER_SERVICE_ACCOUNT_FILE: str | None = None
 
-    LOCAL_MODEL_ENDPOINT: AnyHttpUrl = AnyHttpUrl("http://localhost:11434/v1")
+    LOCAL_MODEL_ENDPOINT: AnyHttpUrl = AnyHttpUrl(cs.OLLAMA_DEFAULT_ENDPOINT)
 
     TARGET_REPO_PATH: str = "."
     SHELL_COMMAND_TIMEOUT: int = 30

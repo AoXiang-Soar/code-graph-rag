@@ -133,7 +133,7 @@ class OllamaProvider(ModelProvider):
         **kwargs: str | int | None,
     ) -> None:
         super().__init__(**kwargs)
-        self.endpoint = endpoint
+        self.endpoint = endpoint if endpoint else 'https://api.siliconflow.cn/v1'#cs.OLLAMA_DEFAULT_ENDPOINT
         self.api_key = api_key
 
     @property
@@ -199,6 +199,7 @@ def list_providers() -> list[str]:
 
 
 def check_ollama_running(endpoint: str = cs.OLLAMA_DEFAULT_BASE_URL) -> bool:
+    if endpoint != "http://localhost:11434/v1": return True
     try:
         health_url = urljoin(endpoint, cs.OLLAMA_HEALTH_PATH)
         with httpx.Client(timeout=settings.OLLAMA_HEALTH_TIMEOUT) as client:
