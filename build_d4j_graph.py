@@ -1,6 +1,8 @@
 from codebase_rag.cli import start
 from codebase_rag.config import settings
 from codebase_rag.main import connect_memgraph
+from subprocess import PIPE, run
+import os
 
 d4j_list_of_bugs = [("Chart", [i for i in range(1, 27)]),
                         ("Cli", [i for i in range(1, 41) if i not in [6]]),
@@ -22,8 +24,18 @@ d4j_list_of_bugs = [("Chart", [i for i in range(1, 27)]),
 
 for project, bugs in d4j_list_of_bugs:
     for bug in bugs:
-        start(repo_path=f'/d4j/{project}-{bug}', update_graph=True, clean=True)
-        effective_batch_size = settings.resolve_batch_size(None)
-        with connect_memgraph(effective_batch_size) as ingestor:
-            ingestor.execute_write(f'CALL export_util.json("/export/{project}-{bug}.json") YIELD export_util;')
+        if os.path.isfile('/export/{project}-{bug}.json'): continue
+        d4j_dir = f'/d4j/{project}-{bug}'
+        json_path = f'/export/{project}-{bug}.json'
 
+        command = f'''update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java && \
+                update-alternatives --set javac /usr/lib/jvm/java-11-openjdk-amd64/bin/javac && \
+                /benchmark/defects4j/framework/bin/defects4j checkout -p "{project}" -v "{bug}b" -w "{d4j_dir}"'''
+        result = run(command, stdout=PIPE, stderr=PIPE, text=True, encoding='utf-8', timeout=300, shell=True)
+        print(result.stdout, result.stderr)
+
+        effective_batch_size = settings.resolve_batch_size(None)
+        start(repo_path=d4j_dir, update_graph=True, clean=True, batch_size=effective_batch_size,
+              orchestrator=None, cypher=None, output=None, exclude=None, no_confirm=False, interactive_setup=False)
+        with connect_memgraph(effective_batch_size) as ingestor:
+            ingestor.execute_write(f'CALL export_util.json("{json_path}") YIELD export_util;')

@@ -18,26 +18,14 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - "./export:/app/export"
+      - "./export:/cgr/export"
+      - ".:/local_disk"
     stdin_open: true
     tty: true
     depends_on:
       - memgraph
       - lab
+    env_file:
+      - .env
     environment:
-      #ORCHESTRATOR_PROVIDER: openai
-      ORCHESTRATOR_PROVIDER: ollama
-      ORCHESTRATOR_MODEL: deepseek-ai/DeepSeek-V3
-      ORCHESTRATOR_API_KEY: sk-your-key
-      #CYPHER_PROVIDER: openai
-      CYPHER_PROVIDER: ollama
-      CYPHER_MODEL: deepseek-ai/DeepSeek-V3
-      CYPHER_API_KEY: sk-your-key
-      MEMGRAPH_HOST: host.docker.internal
-      MEMGRAPH_PORT: 7687
-      MEMGRAPH_HTTP_PORT: 7444
-      LAB_PORT: 3000
-      MEMGRAPH_BATCH_SIZE: 1000
-      TARGET_REPO_PATH: .
-      #LOCAL_MODEL_ENDPOINT: http://localhost:11434/v1
-      LOCAL_MODEL_ENDPOINT: https://api.siliconflow.cn/v1
+      - PATH=/benchmark/defects4j/framework/bin/defects4j:$PATH
